@@ -1,9 +1,8 @@
 #define PIN_LED 13
 unsigned int count, toggle;
 
-unsigned int toggle_state(unsigned int count){
-  toggle = count % 2;
-  return toggle;
+unsigned int toggle_state(unsigned int toggle){
+  return !toggle;
 }
 
 void setup() {
@@ -20,7 +19,7 @@ void setup() {
 
 void loop() {
   Serial.println(++count);
-  toggle = toggle_state(count);
+  toggle = toggle_state(toggle);
   digitalWrite(PIN_LED,toggle);
   delay(1000); 
 }
