@@ -54,77 +54,77 @@ void setup() {
 }
 
 void loop() {
-  float  dist_raw;
-  
-  // wait until next sampling time. 
-  if (millis() < (last_sampling_time + INTERVAL))
-    return;
-
-  dist_raw = USS_measure(PIN_TRIG, PIN_ECHO); // read distance
-
-  if (dist_raw < _DIST_MIN) {
-    dist_raw = dist_prev;           // cut lower than minimum
-    digitalWrite(PIN_LED, 1);       // LED OFF
-  } else if (dist_raw > _DIST_MAX) {
-    dist_raw = dist_prev;           // Cut higher than maximum
-    digitalWrite(PIN_LED, 1);       // LED OFF
-  } else {    // In desired Range
-    digitalWrite(PIN_LED, 0);       // LED ON      
-    dist_prev = dist_raw;
-  }
-
-  // Apply ema filter here  
-  dist_ema = dist_raw * _EMA_ALPHA + (1-_EMA_ALPHA) * dist_ema;
-
-  // adjust servo position according to the USS read value
-//  if(dist_ema < 180.0){
-//    myservo.write(0);
+//  float  dist_raw;
+//  
+//  // wait until next sampling time. 
+//  if (millis() < (last_sampling_time + INTERVAL))
+//    return;
+//
+//  dist_raw = USS_measure(PIN_TRIG, PIN_ECHO); // read distance
+//
+//  if (dist_raw < _DIST_MIN) {
+//    dist_raw = dist_prev;           // cut lower than minimum
+//    digitalWrite(PIN_LED, 1);       // LED OFF
+//  } else if (dist_raw > _DIST_MAX) {
+//    dist_raw = dist_prev;           // Cut higher than maximum
+//    digitalWrite(PIN_LED, 1);       // LED OFF
+//  } else {    // In desired Range
+//    digitalWrite(PIN_LED, 0);       // LED ON      
+//    dist_prev = dist_raw;
 //  }
-//  else if (dist_ema > 180.0 && dist_ema < 220.0){
-//     myservo.write(90);
+//
+//  // Apply ema filter here  
+//  dist_ema = dist_raw * _EMA_ALPHA + (1-_EMA_ALPHA) * dist_ema;
+//
+//  // adjust servo position according to the USS read value
+////  if(dist_ema < 180.0){
+////    myservo.write(0);
+////  }
+////  else if (dist_ema > 180.0 && dist_ema < 220.0){
+////     myservo.write(90);
+////  }
+////  else if(dist_ema > 220){
+////    myservo.write(180);
+////  }
+//
+//
+//  // add your code here!
+//  float dist_stream = dist_raw - 180.0;
+//  
+//  if (dist_stream > 180.0){
+//    dist_stream = 180.0;
 //  }
-//  else if(dist_ema > 220){
-//    myservo.write(180);
+//  else if(dist_stream < 0){
+//    dist_stream = 0;
 //  }
-
-
-  // add your code here!
-  float dist_stream = dist_raw - 180.0;
-  
-  if (dist_stream > 180.0){
-    dist_stream = 180.0;
-  }
-  else if(dist_stream < 0){
-    dist_stream = 0;
-  }
-  
-  myservo.writeMicroseconds(dist_stream*(186.0/18.0) + 550);
-
-  // Use _TARGET_LOW, _TARGET_HIGH
-//  myservo.write(_DUTY_MIN);
-//  myservo.write(_DUTY_MAX);
-//  myservo.write(_DUTY_NEU);
-
-  // output the distance to the serial port
-  Serial.print("Min:");    Serial.print(_DIST_MIN);
-  Serial.print(",dist:");  Serial.print(dist_raw);
-  Serial.print(",ema:");   Serial.print(dist_ema);
-  Serial.print(",Servo:"); Serial.print(myservo.read());  
-  Serial.print(",Max:");   Serial.print(_DIST_MAX);
-  Serial.println("");
- 
-  // update last sampling time
-  last_sampling_time += INTERVAL;
-}
-
-// get a distance reading from USS. return value is in millimeter.
-float USS_measure(int TRIG, int ECHO)
-{
-  digitalWrite(TRIG, HIGH);
-  delayMicroseconds(PULSE_DURATION);
-  digitalWrite(TRIG, LOW);
-  
-  return pulseIn(ECHO, HIGH, TIMEOUT) * SCALE; // unit: mm
+//  
+//  myservo.writeMicroseconds(dist_stream*(186.0/18.0) + 550);
+//
+//  // Use _TARGET_LOW, _TARGET_HIGH
+////  myservo.write(_DUTY_MIN);
+////  myservo.write(_DUTY_MAX);
+////  myservo.write(_DUTY_NEU);
+//
+//  // output the distance to the serial port
+//  Serial.print("Min:");    Serial.print(_DIST_MIN);
+//  Serial.print(",dist:");  Serial.print(dist_raw);
+//  Serial.print(",ema:");   Serial.print(dist_ema);
+//  Serial.print(",Servo:"); Serial.print(myservo.read());  
+//  Serial.print(",Max:");   Serial.print(_DIST_MAX);
+//  Serial.println("");
+// 
+//  // update last sampling time
+//  last_sampling_time += INTERVAL;
+//}
+//
+//// get a distance reading from USS. return value is in millimeter.
+//float USS_measure(int TRIG, int ECHO)
+//{
+//  digitalWrite(TRIG, HIGH);
+//  delayMicroseconds(PULSE_DURATION);
+//  digitalWrite(TRIG, LOW);
+//  
+//  return pulseIn(ECHO, HIGH, TIMEOUT) * SCALE; // unit: mm
 
   // Pulse duration to distance conversion example (target distance = 17.3m)
   // - round trip distance: 34.6m
