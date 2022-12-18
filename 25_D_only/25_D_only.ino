@@ -9,23 +9,23 @@
 // Event interval parameters
 #define _INTERVAL_DIST    20 // distance sensor interval (unit: ms)
 #define _INTERVAL_SERVO   20 // servo interval (unit: ms)
-#define _INTERVAL_SERIAL  20 // serial interval (unit: ms)
+#define _INTERVAL_SERIAL  80 // serial interval (unit: ms)
 
 // EMA filter configuration for the IR distance sensor
-#define _EMA_ALPHA 0.4      // EMA weight of new sample (range: 0 to 1)
+#define _EMA_ALPHA 0      // EMA weight of new sample (range: 0 to 1)
                           // Setting EMA to 1 effectively disables EMA filter.
 
 // Servo adjustment
-#define _DUTY_NEU 1580  // Servo angle: 0 degree
-#define _DUTY_MAX 2393  // Servo angle: D degree
-#define _DUTY_MIN 797   // Servo angle: E degree
-#define _SERVO_ANGLE_DIFF 140 // Replace with |D - E| degree
-#define _SERVO_SPEED 800 // servo speed limit (unit: degree/second)
+#define _DUTY_NEU 1500  // Servo angle: 0 degree
+#define _DUTY_MAX 2500  // Servo angle: D degree
+#define _DUTY_MIN 500   // Servo angle: E degree
+#define _SERVO_ANGLE_DIFF 90 // Replace with |D - E| degree
+#define _SERVO_SPEED 1000 // servo speed limit (unit: degree/second)
 
 // PID parameters
-#define _KP 2.3 // proportional gain
-//#define _KI 0 // derivative gain
-//#define _KD 0 // integral gain
+//#define _KP 0 // proportional gain
+#define _KD 0 // derivative gain
+//#define _KI 0 // integral gain
 
 // global variables
 float dist_filtered, dist_ema, dist_target; // unit: mm
@@ -86,13 +86,13 @@ void loop()
     event_dist = false;
     
     // Get a distance reading from the distance sensor
-    dist_filtered = volt_to_distance(ir_sensor_filtered(10, 0.5));
+    dist_filtered = volt_to_distance(ir_sensor_filtered(n, 0.5));
     dist_ema = _EMA_ALPHA * dist_ema + (1.0 - _EMA_ALPHA) * dist_filtered;
 
     // Update PID control variables
     error_curr = dist_target - dist_ema;
-    pterm =  _KP * error_curr;
-    control = pterm;
+    dterm = _KD * ??;
+    control = dterm;
     duty_target = _DUTY_NEU + control;
 
     if(error_curr > 0) digitalWrite(PIN_LED, 1);
@@ -124,20 +124,18 @@ void loop()
     // use for debugging
     if(0) {
       Serial.print(",ERROR:"); Serial.print(error_curr); 
-      Serial.print(",pterm:"); Serial.print(pterm);
-     Serial.print(",duty_target:"); Serial.print(duty_target);
-     Serial.print(",duty_curr:"); Serial.print(duty_curr);
+      Serial.print(",dterm:"); Serial.print(dterm);
+      Serial.print(",duty_target:"); Serial.print(duty_target);
+      Serial.print(",duty_curr:"); Serial.print(duty_curr);
     }
-    // For evaluation
-    Serial.print("10m:130,10M:180,9m:100,9M:210,TARGET:");
-    Serial.print(dist_target);
+    Serial.print("MIN:0,MAX:310,");
     Serial.print(",DIST:"), Serial.println(dist_ema);
   }
 }
 
 float volt_to_distance(int a_value)
 {
-  return (863 + (-4.19*a_value)+(0.00724*pow(a_value,2)) + (-0.00000436 * pow(a_value,3))); // Replace this with the equation obtained from nonlinear regression analysis
+  return (6762.0 / (a_value - 9) - 4.0) * 10.0; // Replace this with the equation obtained from nonlinear regression analysis
 }
 
 unsigned int ir_sensor_filtered(unsigned int n, float position)
